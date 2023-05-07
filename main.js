@@ -57,7 +57,11 @@ app.get("/", function (req, res) {
 // bus.js
 app.patch("/gps", async (req, res) => {
   console.log("Request Body : ", req.query);
-  let bus = await BUS.fetchGPS(req.query.gps);
+  let bus = await BUS.fetchGPS(
+    req.query.gps,
+    req.query.latitude,
+    req.query.longitude
+  );
   if (bus != null) {
     console.log("Bus GPS location Updated");
     res.status(200).json(bus);
@@ -67,7 +71,7 @@ app.patch("/gps", async (req, res) => {
   }
 });
 
-app.get("/location", async (req, res) => {
+app.get("/bus", async (req, res) => {
   console.log("Request Body : ", req.query);
   let bus = await BUS.fetchLocation(req.query.bus_plate);
   if (bus != null) {
@@ -82,16 +86,9 @@ app.get("/location", async (req, res) => {
 //bus_stop.js
 app.patch("/waiting", urlencodedParser, async (req, res) => {
   console.log("Request Body : " + req.query);
-  console.log("Request Body 2 : " + req.body.image);
-  let bs = await BUS_STOP.waiting(
-    req.query.bs_id,
-    req.query.waiting,
-    req.body.image
-  );
+  let bs = await BUS_STOP.waiting(req.query.area, req.query.waiting);
   if (bs != null) {
-    console.log(
-      "Number of people waiting at " + req.query.bs_id + " update to "
-    );
+    console.log("People waiting at bus stop is " + req.query.waiting);
     res.status(200).json(bs);
   } else {
     console.log("Bus stop ID not found");
@@ -103,16 +100,23 @@ app.post("/insert", async (req, res) => {
   console.log("Request Body : ", req.query);
   let bs = await BUS_STOP.insert(req.query.waiting);
   if (bs != null) {
-    console.log(
-      "Number of people waiting at " +
-        req.query.area +
-        " update to " +
-        req.query.waiting
-    );
+    console.log("Bus stop document inserted");
     res.status(200).json(bs);
   } else {
     console.log("Bus stop not found");
     res.status(404).send("Bus stop not found");
+  }
+});
+
+app.get("/bustop", async (req, res) => {
+  console.log("Request Body : ", req.query);
+  let bs = await BUS_STOP.fetchLocation(req.query.area);
+  if (bs != null) {
+    console.log("Bus stop location found and displayed");
+    res.status(200).json(bs);
+  } else {
+    console.log("Bus stop location not found");
+    res.status(404).send("Bus stop location not found");
   }
 });
 

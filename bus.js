@@ -9,15 +9,15 @@ class Bus {
     bus = await conn.db("sbs").collection("bus");
   }
 
-  // read bus location (with matched gps)
-  static async fetchGPS(gps) {
+  // update bus location (with matched gps)
+  static async fetchGPS(gps, latitude, longitude) {
     let search = await bus.find({ gps: gps }).toArray();
     if (!search[0]) {
       return null;
     } else {
-      return await bus.update(
+      return await bus.updateOne(
         { gps: gps },
-        { $set: { latitude: gps.latitude, longitude: gps.longitude } }
+        { $set: { latitude: latitude, longitude: longitude } }
       );
     }
   }
