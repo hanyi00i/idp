@@ -5,9 +5,9 @@ class BusStop {
     busstop = await conn.db("sbs").collection("bus_stop");
   }
 
-  // update number of people waiting (with AI camera perhaps with matched bs_id?)
+  // update number of people waiting (with AI camera)
   static async waiting(area, waiting) {
-    await busstop.updateOne({ bs_id: bs_id }, { $set: { waiting: waiting } });
+    await busstop.updateOne({ area: area }, { $set: { waiting: waiting } });
     let document = await busstop.find({ area: area }).toArray();
     if (document.length == 0) {
       return null;
@@ -21,18 +21,35 @@ class BusStop {
   }
 
   // insert the bus stop document every 10 minutes
-  now = new Date();
   static async insert(waiting) {
     await busstop.insertOne({
-      area: "Durian Tunggal",
+      area: "DT",
       waiting: waiting,
-      latitude: "100",
-      longitude: "50",
-      time: now,
+      time: new Date(),
     });
-    let document = await busstop.find({ time: now }).toArray();
+    let document = await busstop.find({ area: "DT" }).toArray();
     if (document.length == 0) {
       return null;
+    } else {
+      return document;
+    }
+  }
+
+  //get bus stop location
+  static async fetchLocation(area) {
+    let search = await busstop.find({ area: area }).toArray();
+    if (!search[0]) {
+      return null;
+    } else {
+      return await busstop
+        .find({ area: area })
+        .project({
+          area: 1,
+          longitude: 1,
+          latitude: 1,
+          waiting: 1,
+        })
+        .toArray();
     }
   }
 }
