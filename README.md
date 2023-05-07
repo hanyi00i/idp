@@ -10,3 +10,5 @@ Bus Stop
 
 - Update the latest waiting people with MQTT
 - Insert the bus stop document every 10 minutes
+
+![entity](https://github.com/hanyi00i/idp/blob/main/Img/Entity.png)
