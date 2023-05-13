@@ -2,6 +2,20 @@ const MongoClient = require("mongodb").MongoClient;
 const BUS = require("./bus");
 const BUS_STOP = require("./bus_stop");
 
+const mqtt = require("mqtt");
+const broker = "mqtt://broker.emqx.io";
+const topic = "/RESTful";
+//const client_id = "python-mqtt-" + Math.floor(Math.random() * 100);
+const client = mqtt.connect(broker, { clientId: "python-mqtt-500" });
+client.on("connect", () => {
+  console.log("Connected to MQTT Broker!");
+  client.subscribe(topic);
+});
+
+client.on("message", (topic, message) => {
+  console.log(`Received '${message.toString()}' from '${topic}' topic`);
+});
+
 MongoClient.connect("mongodb+srv://admin:admin@idp.3vyarrm.mongodb.net/test", {
   useNewUrlParser: true,
   useUnifiedTopology: true,
