@@ -1,37 +1,21 @@
 let busstop;
+var lastInsertTime = 0; // Variable to store the time of the last insertion
 
 class BusStop {
   static async injectDB(conn) {
-    busstop = await conn.db("sbs").collection("bus_stop");
+    busstop = await conn.db("sbs").collection("people");
   }
 
-  // update number of people waiting (with AI camera)
-  static async waiting(area, waiting) {
-    await busstop.updateOne({ area: area }, { $set: { waiting: waiting } });
-    let document = await busstop.find({ area: area }).toArray();
-    if (document.length == 0) {
-      return null;
-    } else {
-      let output = await busstop
-        .find({ area: area })
-        .project({ _id: 0 })
-        .toArray();
-      return output;
-    }
-  }
-
-  // insert the bus stop document every 10 minutes
+  // insert the bus stop document every 1 second
   static async insert(waiting) {
-    await busstop.insertOne({
-      area: "DT",
-      waiting: waiting,
-      time: new Date(),
-    });
-    let document = await busstop.find({ area: "DT" }).toArray();
-    if (document.length == 0) {
-      return null;
-    } else {
-      return document;
+    const currentTime = new Date().getTime();
+    if (currentTime - lastInsertTime > 1000) {
+      console.log("Inserting bus stop document");
+      await busstop.insertOne({
+        waiting: waiting,
+        time: new Date(),
+      });
+      lastInsertTime = currentTime; // Update the last insert time
     }
   }
 
