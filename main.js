@@ -3,13 +3,12 @@ const BUS_STOP = require("./bus_stop");
 
 const mqtt = require("mqtt");
 const broker = "mqtt://broker.emqx.io";
-const topic = "camera-idp";
-
+const topic = "/RESTful";
 //const client_id = "python-mqtt-" + Math.floor(Math.random() * 100);
-const mqttclient = mqtt.connect(broker, { clientId: "nodejs" });
-mqttclient.on("connect", () => {
-  console.log("Connected to MQTT Broker");
-  mqttclient.subscribe(topic);
+const client = mqtt.connect(broker, { clientId: "python-mqtt-500" });
+client.on("connect", () => {
+  console.log("Connected to MQTT Broker!");
+  client.subscribe(topic);
 });
 
 mqttclient.on("message", (topic, message) => {
@@ -31,37 +30,38 @@ MongoClient.connect("mongodb+srv://admin:admin@idp.3vyarrm.mongodb.net/test", {
   });
 
 const express = require("express");
-const bodyParser = require("body-parser");
 const app = express();
 const port = process.env.PORT || 3000;
-const cors = require("cors");
-const urlencodedParser = bodyParser.urlencoded({ extended: false });
+//const bodyParser = require("body-parser");
+//const cors = require("cors");
+// const urlencodedParser = bodyParser.urlencoded({ extended: false });
 
-const options = {
-  definition: {
-    openapi: "3.0.0",
-    info: {
-      title: "Connected Bus System API",
-      version: "1.0.0",
-    },
-    securityDefinitions: {
-      bearerAuth: {
-        type: "apiKey",
-        name: "Authorization",
-        scheme: "bearer",
-        in: "header",
-      },
-    },
-  },
-  apis: ["./main.js"],
-};
+// const options = {
+//   definition: {
+//     openapi: "3.0.0",
+//     info: {
+//       title: "Connected Bus System API",
+//       version: "1.0.0",
+//     },
+//     securityDefinitions: {
+//       bearerAuth: {
+//         type: "apiKey",
+//         name: "Authorization",
+//         scheme: "bearer",
+//         in: "header",
+//       },
+//     },
+//   },
+//   apis: ["./main.js"],
+// };
 
 app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
-app.use(cors()); // Use this after the variable declaration
+//app.use(express.urlencoded({ extended: false }));
+//app.use(cors()); // Use this after the variable declaration
 
 // welcome
 app.get("/", function (req, res) {
+  console.log("HAHAAH");
   res.send("Hello World from IDP !\nSmart Bus System");
 });
 
@@ -69,16 +69,17 @@ app.get("/", function (req, res) {
 // app.use(verifyToken);
 
 //bus_stop.js
-async function MongoInsert(data) {
-  BUS_STOP.insert(data);
-  // if (bs != null) {
-  //   console.log("Bus stop document inserted");
-  //   res.status(200).json(bs);
-  // } else {
-  //   console.log("Bus stop not found");
-  //   res.status(404).send("Bus stop not found");
-  // }
-}
+app.patch("/waiting", urlencodedParser, async (req, res) => {
+  console.log("Request Body : " + req.query);
+  let bs = await BUS_STOP.waiting(req.query.area, req.query.waiting);
+  if (bs != null) {
+    console.log("People waiting at bus stop is " + req.query.waiting);
+    res.status(200).json(bs);
+  } else {
+    console.log("Bus stop ID not found");
+    res.status(404).send("Bus stop ID not found");
+  }
+});
 
 // app.get("/bustop", async (req, res) => {
 //   console.log("Request Body : ", req.query);

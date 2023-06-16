@@ -6,6 +6,11 @@
     "jsonwebtoken": "^9.0.0",
     "mongodb": "^5.4.0",
     "mqtt": "^4.3.7",
+<<<<<<< HEAD
+    "mqtt-connection": "^4.1.0",
+    "node-cron": "^3.0.2"
+=======
     "mqtt-connection": "^4.1.0"
+>>>>>>> 35928501bb4d33be84662307ee8a080122b3df27
   }
 }
