@@ -2,14 +2,21 @@ const MongoClient = require("mongodb").MongoClient;
 const BUS_STOP = require("./bus_stop");
 
 const mqtt = require("mqtt");
-const broker = "mqtt://broker.emqx.io";
-const topic = "camera-idp";
+//const broker = "mqtt://broker.emqx.io";
+const broker = "mqtt://192.168.10.235:1883";
+const topic = "#";
+const cron = require("node-cron");
 
-//const client_id = "python-mqtt-" + Math.floor(Math.random() * 100);
-const mqttclient = mqtt.connect(broker, { clientId: "nodejs" });
+cron.schedule("*/2 * * * * *", function () {
+  console.log("running a task every 2 seconds");
+  
+});
+
+const client_id = "python-mqtt-" + Math.floor(Math.random() * 100);
+const mqttclient = mqtt.connect(broker, { clientId: "camera-mqtt-2" });
 mqttclient.on("connect", () => {
-  console.log("Connected to MQTT Broker");
   mqttclient.subscribe(topic);
+  console.log("Connected to MQTT Broker");
 });
 
 mqttclient.on("message", (topic, message) => {
@@ -31,9 +38,9 @@ MongoClient.connect("mongodb+srv://admin:admin@idp.3vyarrm.mongodb.net/test", {
   });
 
 const express = require("express");
-//const bodyParser = require("body-parser");
 const app = express();
 const port = process.env.PORT || 3000;
+//const bodyParser = require("body-parser");
 //const cors = require("cors");
 // const urlencodedParser = bodyParser.urlencoded({ extended: false });
 
@@ -62,6 +69,7 @@ app.use(express.json());
 
 // welcome
 app.get("/", function (req, res) {
+  console.log("HAHAAH");
   res.send("Hello World from IDP !\nSmart Bus System");
 });
 
@@ -70,7 +78,7 @@ app.get("/", function (req, res) {
 
 //bus_stop.js
 async function MongoInsert(data) {
-  BUS_STOP.insert(data);
+  //BUS_STOP.insert(data);
   // if (bs != null) {
   //   console.log("Bus stop document inserted");
   //   res.status(200).json(bs);
