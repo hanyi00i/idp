@@ -2,21 +2,13 @@ const MongoClient = require("mongodb").MongoClient;
 const BUS_STOP = require("./bus_stop");
 
 const mqtt = require("mqtt");
-//const broker = "mqtt://broker.emqx.io";
-const broker = "mqtt://192.168.10.235:1883";
-const topic = "#";
-const cron = require("node-cron");
-
-cron.schedule("*/2 * * * * *", function () {
-  console.log("running a task every 2 seconds");
-  
-});
-
-const client_id = "python-mqtt-" + Math.floor(Math.random() * 100);
-const mqttclient = mqtt.connect(broker, { clientId: "camera-mqtt-2" });
-mqttclient.on("connect", () => {
-  mqttclient.subscribe(topic);
-  console.log("Connected to MQTT Broker");
+const broker = "mqtt://broker.emqx.io";
+const topic = "/RESTful";
+//const client_id = "python-mqtt-" + Math.floor(Math.random() * 100);
+const client = mqtt.connect(broker, { clientId: "python-mqtt-500" });
+client.on("connect", () => {
+  console.log("Connected to MQTT Broker!");
+  client.subscribe(topic);
 });
 
 mqttclient.on("message", (topic, message) => {
@@ -77,16 +69,17 @@ app.get("/", function (req, res) {
 // app.use(verifyToken);
 
 //bus_stop.js
-async function MongoInsert(data) {
-  //BUS_STOP.insert(data);
-  // if (bs != null) {
-  //   console.log("Bus stop document inserted");
-  //   res.status(200).json(bs);
-  // } else {
-  //   console.log("Bus stop not found");
-  //   res.status(404).send("Bus stop not found");
-  // }
-}
+app.patch("/waiting", urlencodedParser, async (req, res) => {
+  console.log("Request Body : " + req.query);
+  let bs = await BUS_STOP.waiting(req.query.area, req.query.waiting);
+  if (bs != null) {
+    console.log("People waiting at bus stop is " + req.query.waiting);
+    res.status(200).json(bs);
+  } else {
+    console.log("Bus stop ID not found");
+    res.status(404).send("Bus stop ID not found");
+  }
+});
 
 // app.get("/bustop", async (req, res) => {
 //   console.log("Request Body : ", req.query);
